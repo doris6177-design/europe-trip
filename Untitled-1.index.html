@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Europe Trip | 西班牙・葡萄牙・義大利 2026</title>
+    
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Roboto:wght@500;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    
+    <style>
+        body { font-family: 'Roboto', 'Noto Sans TC', sans-serif; background-color: #D7CCC8; margin: 0; }
+        [v-cloak] { display: none; }
+        .hide-scroll::-webkit-scrollbar { display: none; }
+        .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .glass-nav { 
+            position: fixed; bottom: 0; width: 100%;
+            background: rgba(255, 255, 255, 0.9); 
+            backdrop-filter: blur(10px); 
+            border-top: 1px solid #EFEBE9; 
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        
+        .card-shadow { box-shadow: 0 4px 15px rgba(93, 64, 55, 0.05); }
+        .slide-up-enter-active, .slide-up-leave-active { transition: all 0.3s ease; }
+        .slide-up-enter-from, .slide-up-leave-to { transform: translateY(10px); opacity: 0; }
+
+        @media (min-width: 640px) {
+            body { display: flex; align-items: center; justify-content: center; height: 100vh; }
+            #app { width: 400px; height: 85vh; border-radius: 32px; position: relative; overflow: hidden; background-color: #F8F3ED; border: 8px solid #FFFFFF; box-shadow: 0 20px 50px rgba(0,0,0,0.1); }
+            .glass-nav { position: absolute; width: 100%; }
+        }
+        @media (max-width: 639px) {
+            #app { height: 100dvh; width: 100vw; background-color: #F8F3ED; }
+        }
+    </style>
+</head>
+<body>
+    <div id="app" v-cloak class="flex flex-col h-full relative">
+
+        <transition name="fade">
+            <div v-if="showLogin" class="absolute inset-0 z-50 flex flex-col items-center justify-center bg-[#F8F3ED] p-8 space-y-6">
+                <div class="text-5xl mb-4">🌍</div>
+                <div class="text-center">
+                    <h1 class="text-3xl font-black text-[#5D4037]">Europe Trip</h1>
+                    <p class="text-xs text-[#A1887F] tracking-[0.2em] mt-1">MAY 2026 · 21 DAYS</p>
+                </div>
+
+                <div v-if="loginStep === 1" class="w-full space-y-3 pt-8">
+                    <button @click="loginStep = 2" class="w-full py-4 bg-[#5D4037] text-white rounded-2xl font-bold">成員登入</button>
+                    <button @click="guestLogin" class="w-full py-4 text-[#A1887F] font-bold">訪客瀏覽</button>
+                </div>
+
+                <div v-if="loginStep === 2" class="w-full space-y-4">
+                    <input type="password" v-model="inputPassword" placeholder="Passcode" 
+                        class="w-full bg-white rounded-2xl px-4 py-4 text-center text-2xl font-bold outline-none border-2 border-[#EFEBE9] focus:border-[#5D4037]">
+                    <div v-if="loginError" class="text-center text-red-400 text-sm font-bold">{{ loginError }}</div>
+                    <div class="flex gap-3">
+                        <button @click="loginStep = 1" class="flex-1 py-4 border border-[#D7CCC8] rounded-2xl font-bold text-[#A1887F]">返回</button>
+                        <button @click="verifyPassword" class="flex-[2] py-4 bg-[#5D4037] text-white rounded-2xl font-bold">確認</button>
+                    </div>
+                </div>
+
+                <div v-if="loginStep === 3" class="w-full space-y-6 text-center">
+                    <p class="text-[#A1887F] font-bold">歡迎回來，請問你是？</p>
+                    <div class="flex gap-6 justify-center">
+                        <button @click="selectUser('Doris')" class="flex flex-col items-center gap-2">
+                            <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-2xl shadow-sm">👑</div>
+                            <span class="font-bold text-[#5D4037]">Doris</span>
+                        </button>
+                        <button @click="selectUser('Scott')" class="flex flex-col items-center gap-2">
+                            <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-2xl shadow-sm">⭐</div>
+                            <span class="font-bold text-[#5D4037]">Scott</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </transition>
+
+        <header class="pt-10 pb-4 px-6 bg-[#FDFBF7] border-b border-[#EFEBE9] shrink-0">
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <div class="text-[10px] font-black text-[#D7CCC8] tracking-widest uppercase">ITINERARY 2026</div>
+                    <h1 class="text-xl font-black text-[#5D4037]">{{ tripData.destination }}</h1>
+                </div>
+                <button @click="logout" class="w-8 h-8 rounded-full bg-[#F8F3ED] flex items-center justify-center text-[#A1887F]">
+                    <i class="ph ph-power"></i>
+                </button>
+            </div>
+            <div v-if="weatherData.temp !== null" class="flex items-center gap-4 bg-white p-3 rounded-2xl border border-[#F5F5F5] text-xs">
+                <i class="ph-fill text-2xl text-[#8D6E63]" :class="getWeatherIcon(weatherData.code)"></i>
+                <div class="flex gap-3 text-[#A1887F] font-bold">
+                    <span class="text-[#5D4037] text-lg font-black">{{ weatherData.temp }}°</span>
+                    <span class="mt-1">體感 {{ weatherData.feelsLike }}°</span>
+                    <span class="mt-1">降雨 {{ weatherData.rain }}mm</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-1 overflow-y-auto hide-scroll p-5 pb-32">
+            
+            <transition name="slide-up" mode="out-in">
+                <div v-if="activeTab === 'plan'" key="plan" class="space-y-6">
+                    <div class="flex gap-2 overflow-x-auto hide-scroll pb-1">
+                        <button v-for="(day, idx) in tripData.days" :key="idx" @click="currentDayIdx = idx"
+                            class="shrink-0 flex flex-col items-center justify-center w-12 h-14 rounded-xl border transition-all"
+                            :class="currentDayIdx === idx ? 'bg-[#5D4037] border-[#5D4037] text-white shadow-md' : 'bg-white border-[#EFEBE9] text-[#A1887F]'">
+                            <span class="text-[9px] font-bold opacity-60">D{{ idx + 1 }}</span>
+                            <span class="text-xs font-bold">{{ day.date.split(' ')[0] }}</span>
+                        </button>
+                    </div>
+
+                    <div class="relative pl-4 space-y-0">
+                        <div class="absolute left-[29px] top-4 bottom-10 w-0.5 bg-[#EFEBE9]"></div>
+                        <div v-for="(item, idx) in (currentDay?.items || [])" :key="idx" class="relative pl-8 pb-8 last:pb-0">
+                            <div class="absolute left-0 top-0 w-8 h-8 rounded-full border-2 border-white shadow-sm flex items-center justify-center z-10"
+                                :class="item.type === 'transport' ? 'bg-[#EFEBE9] text-[#8D6E63]' : 'bg-[#5D4037] text-white'">
+                                <i class="ph-fill text-sm" :class="item.type === 'transport' ? 'ph-train' : 'ph-map-pin'"></i>
+                            </div>
+                            <div class="bg-white p-4 rounded-2xl card-shadow border border-[#F5F5F5]">
+                                <span class="text-[10px] font-mono font-bold text-[#A1887F] bg-[#F8F3ED] px-1.5 py-0.5 rounded">{{ item.time }}</span>
+                                <h3 class="font-bold text-[#5D4037] mt-1">{{ item.title }}</h3>
+                                <p class="text-[11px] text-[#8D6E63] mt-1 flex items-center gap-1" @click="openMap(item.location)">
+                                    <i class="ph ph-map-pin"></i> {{ item.location }}
+                                </p>
+                                <p v-if="item.note" class="text-[11px] text-[#A1887F] mt-2 bg-gray-50 p-2 rounded">{{ item.note }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </transition>
+
+            <transition name="slide-up" mode="out-in">
+                <div v-if="activeTab === 'hotels'" key="hotels" class="space-y-4">
+                    <div v-for="(hotel, idx) in tripData.hotels" :key="idx" class="bg-white rounded-3xl p-5 card-shadow border border-[#F5F5F5]">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="bg-[#EFEBE9] text-[#8D6E63] px-2.5 py-1 rounded-lg text-[10px] font-bold">{{ hotel.tag }}</span>
+                            <span class="text-[10px] text-[#D7CCC8]">{{ hotel.date }}</span>
+                        </div>
+                        <h3 class="font-bold text-[#5D4037] text-lg">{{ hotel.name }}</h3>
+                        <p class="text-xs text-[#A1887F] italic mb-3">{{ hotel.eng }}</p>
+                        <div class="text-[11px] text-[#8D6E63] bg-[#FDFBF7] p-3 rounded-xl border border-[#EFEBE9] mb-4">
+                            {{ hotel.address }}
+                        </div>
+                        <button @click="openMap(hotel.address)" class="w-full py-3 bg-[#5D4037] text-white rounded-xl text-sm font-bold shadow-sm active:scale-95 transition">導航地圖</button>
+                    </div>
+                </div>
+            </transition>
+
+            <transition name="slide-up" mode="out-in">
+                <div v-if="activeTab === 'flights'" key="flights" class="space-y-4">
+                    <div v-for="(flight, idx) in tripData.flights" :key="idx" class="bg-white rounded-3xl p-6 card-shadow border border-[#F5F5F5]">
+                        <div class="flex justify-between mb-4">
+                            <span class="text-[10px] font-black text-[#A1887F] uppercase tracking-widest">{{ flight.type }}</span>
+                            <span class="text-xs font-bold text-[#5D4037] bg-[#EFEBE9] px-2 py-0.5 rounded-md">{{ flight.airline }}</span>
+                        </div>
+                        <div class="flex justify-between items-center text-center">
+                            <div>
+                                <div class="text-2xl font-black text-[#5D4037]">{{ flight.from.split(' ')[0] }}</div>
+                                <div class="text-xs font-bold text-[#A1887F] mt-1">{{ flight.depTime }}</div>
+                            </div>
+                            <div class="flex flex-col items-center opacity-30">
+                                <span class="text-[9px] mb-1 font-bold">{{ flight.duration }}</span>
+                                <i class="ph-fill ph-airplane-tilt text-2xl"></i>
+                            </div>
+                            <div>
+                                <div class="text-2xl font-black text-[#5D4037]">{{ flight.to.split(' ')[0] }}</div>
+                                <div class="text-xs font-bold text-[#A1887F] mt-1">{{ flight.arrTime }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </transition>
+
+            <transition name="slide-up" mode="out-in">
+                <div v-if="activeTab === 'expenses'" key="expenses" class="space-y-6">
+                    <div class="bg-[#5D4037] text-white p-6 rounded-3xl shadow-lg">
+                        <div class="text-[10px] font-bold opacity-70 mb-4">目前匯率：1 EUR = {{ tripData.currencyRate }} TWD</div>
+                        <div v-if="settlement.length === 0" class="text-sm italic opacity-60">目前暫無結算資訊</div>
+                        <div v-for="(tx, i) in settlement" :key="i" class="flex justify-between items-center py-2 border-b border-white/10 last:border-0">
+                            <span class="font-bold">{{ tx.p }}</span>
+                            <span class="font-mono text-xl" :class="tx.type === 'receive' ? 'text-green-300' : 'text-red-300'">
+                                {{ tx.type === 'receive' ? '+' : '-' }} {{ Math.abs(Math.round(tx.amt)).toLocaleString() }}
+                            </span>
+                        </div>
+                    </div>
+                    <div v-if="canEdit" class="bg-white p-5 rounded-3xl card-shadow border border-[#F5F5F5] space-y-4">
+                        <input v-model="newExpense.item" placeholder="支出項目" class="w-full bg-[#F8F3ED] rounded-xl px-4 py-3 text-sm font-bold outline-none">
+                        <div class="flex gap-2">
+                            <input v-model="newExpense.amount" type="number" placeholder="金額" class="flex-1 bg-[#F8F3ED] rounded-xl px-4 py-3 text-sm font-bold outline-none">
+                            <select v-model="newExpense.currency" class="bg-[#F8F3ED] rounded-xl px-3 text-xs font-bold">
+                                <option value="EUR">EUR</option>
+                                <option value="TWD">TWD</option>
+                            </select>
+                        </div>
+                        <button @click="addExpense" class="w-full bg-[#5D4037] text-white py-4 rounded-2xl font-bold active:scale-95 transition">紀錄支出</button>
+                    </div>
+                    <div class="space-y-3">
+                        <div v-for="(exp, idx) in tripData.expenses" :key="exp.id" class="bg-white p-4 rounded-2xl card-shadow flex justify-between items-center border border-[#F5F5F5]">
+                            <div class="text-sm">
+                                <div class="font-bold text-[#5D4037]">{{ exp.item }}</div>
+                                <div class="text-[10px] text-[#A1887F]">{{ exp.payer }} 付款</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="font-bold">{{ exp.currency === 'EUR' ? '€' : '$' }} {{ exp.amount }}</div>
+                                <button v-if="canEdit" @click="deleteExpense(idx)" class="text-[10px] text-red-300">刪除</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </transition>
+
+            <transition name="slide-up" mode="out-in">
+                <div v-if="activeTab === 'todos'" key="todos" class="space-y-4">
+                    <div v-if="canEdit" class="flex gap-2">
+                        <input v-model="newTodo" @keyup.enter="addTodo" placeholder="待辦事項..." class="flex-1 bg-white rounded-2xl px-4 py-3 text-sm shadow-sm border-none outline-none">
+                        <button @click="addTodo" class="w-12 h-12 bg-[#5D4037] text-white rounded-2xl flex items-center justify-center shadow-md"><i class="ph ph-plus"></i></button>
+                    </div>
+                    <div v-for="(todo, idx) in tripData.todos" :key="todo.id" class="bg-white p-4 rounded-2xl flex items-center gap-3 card-shadow" :class="todo.done ? 'opacity-40' : ''">
+                        <div @click="todo.done = !todo.done" class="w-6 h-6 rounded-lg border-2 flex items-center justify-center" :class="todo.done ? 'bg-[#5D4037] border-[#5D4037]' : 'border-[#EFEBE9]'">
+                            <i v-if="todo.done" class="ph ph-check text-white text-xs"></i>
+                        </div>
+                        <span class="text-sm font-bold flex-1" :class="todo.done ? 'line-through' : ''">{{ todo.text }}</span>
+                        <button v-if="canEdit" @click="removeTodo(idx)" class="text-gray-300"><i class="ph ph-trash"></i></button>
+                    </div>
+                </div>
+            </transition>
+
+        </main>
+
+        <nav class="glass-nav flex justify-around items-center pt-3 pb-8 z-20">
+            <button @click="activeTab = 'plan'" class="flex flex-col items-center gap-1 transition-all" :class="activeTab === 'plan' ? 'text-[#5D4037] scale-110' : 'text-[#D7CCC8]'">
+                <i class="ph-fill text-2xl ph-map-trifold"></i><span class="text-[10px] font-bold">行程</span>
+            </button>
+            <button @click="activeTab = 'hotels'" class="flex flex-col items-center gap-1 transition-all" :class="activeTab === 'hotels' ? 'text-[#5D4037] scale-110' : 'text-[#D7CCC8]'">
+                <i class="ph-fill text-2xl ph-house-line"></i><span class="text-[10px] font-bold">住宿</span>
+            </button>
+            <button @click="activeTab = 'flights'" class="flex flex-col items-center gap-1 transition-all" :class="activeTab === 'flights' ? 'text-[#5D4037] scale-110' : 'text-[#D7CCC8]'">
+                <i class="ph-fill text-2xl ph-airplane-tilt"></i><span class="text-[10px] font-bold">機票</span>
+            </button>
+            <button @click="activeTab = 'expenses'" class="flex flex-col items-center gap-1 transition-all" :class="activeTab === 'expenses' ? 'text-[#5D4037] scale-110' : 'text-[#D7CCC8]'">
+                <i class="ph-fill text-2xl ph-wallet"></i><span class="text-[10px] font-bold">分帳</span>
+            </button>
+            <button @click="activeTab = 'todos'" class="flex flex-col items-center gap-1 transition-all" :class="activeTab === 'todos' ? 'text-[#5D4037] scale-110' : 'text-[#D7CCC8]'">
+                <i class="ph-fill text-2xl ph-check-square"></i><span class="text-[10px] font-bold">清單</span>
+            </button>
+        </nav>
+
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyCFDSDvLAkcxHKzH4VAHm0x5yKzUSg2yG0",
+          authDomain: "doris-europe-trip.firebaseapp.com",
+          projectId: "doris-europe-trip",
+          storageBucket: "doris-europe-trip.firebasestorage.app",
+          messagingSenderId: "261287090856",
+          appId: "1:261287090856:web:3e39944b035eecee5b409d",
+          measurementId: "G-10E2XNG4XR"
+        };
+
+        const app = Vue.createApp({
+            setup() {
+                const { ref, reactive, computed, onMounted, watch } = Vue;
+                
+                // State
+                const activeTab = ref('plan'); 
+                const currentDayIdx = ref(0);
+                const weatherData = ref({ temp: null, code: null, feelsLike: null, rain: 0 });
+                const tripId = ref(null);
+                const loading = ref(true);
+
+                // User
+                const currentUser = ref(localStorage.getItem('Doris_user') || '');
+                const userRole = ref(localStorage.getItem('Doris_role') || 'viewer'); 
+                const showLogin = ref(!currentUser.value);
+                const loginStep = ref(1);
+                const inputPassword = ref('');
+                const loginError = ref('');
+
+                // Trip Data
+                const tripData = reactive({
+                    destination: "Spain・Portugal・Italy",
+                    days: [], hotels: [], expenses: [], transport: [], todos: [], flights: [],
+                    participants: ["Doris", "Scott"], currencyRate: 37
+                });
+
+                const newExpense = reactive({ item: "", amount: "", currency: "EUR", payer: "Doris", involved: ["Doris", "Scott"] });
+                const newTodo = ref("");
+                let db = null;
+                let saveTimeout;
+
+                const canEdit = computed(() => userRole.value === 'admin');
+                const currentDay = computed(() => tripData.days[currentDayIdx.value] || { items: [] });
+
+                // Methods
+                const verifyPassword = () => {
+                    if (inputPassword.value === '0529') {
+                        loginStep.value = 3;
+                        loginError.value = '';
+                    } else {
+                        loginError.value = '密碼錯誤';
+                    }
+                };
+
+                const selectUser = (name) => {
+                    currentUser.value = name;
+                    userRole.value = 'admin';
+                    localStorage.setItem('Doris_user', name);
+                    localStorage.setItem('Doris_role', 'admin');
+                    showLogin.value = false;
+                };
+
+                const guestLogin = () => {
+                    currentUser.value = 'Guest';
+                    userRole.value = 'viewer';
+                    showLogin.value = false;
+                };
+
+                const logout = () => {
+                    if(!confirm("確定登出？")) return;
+                    localStorage.removeItem('Doris_user');
+                    localStorage.removeItem('Doris_role');
+                    location.reload();
+                };
+
+                const openMap = (loc) => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(loc)}`, '_blank');
+
+                const settlement = computed(() => {
+                    const balances = {}; 
+                    tripData.participants.forEach(p => balances[p] = 0);
+                    tripData.expenses.forEach(exp => {
+                        let amt = Number(exp.amount);
+                        if (exp.currency === 'EUR') amt *= tripData.currencyRate;
+                        const split = amt / 2;
+                        balances[exp.payer] += amt;
+                        tripData.participants.forEach(p => balances[p] -= (amt/2));
+                    });
+                    return Object.entries(balances).map(([p, amt]) => ({ p, amt, type: amt >= 0 ? 'receive' : 'pay' }));
+                });
+
+                const addExpense = () => {
+                    if (!newExpense.item || !newExpense.amount) return;
+                    tripData.expenses.unshift({ ...newExpense, id: Date.now() });
+                    newExpense.item = ""; newExpense.amount = "";
+                };
+                const deleteExpense = (idx) => tripData.expenses.splice(idx, 1);
+
+                const addTodo = () => { if(newTodo.value) tripData.todos.push({id: Date.now(), text: newTodo.value, done: false}); newTodo.value=""; };
+                const removeTodo = (idx) => tripData.todos.splice(idx, 1);
+
+                const initFirebase = async () => {
+                    const fbApp = initializeApp(firebaseConfig);
+                    db = getFirestore(fbApp);
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const id = urlParams.get('trip') || 'EUROPE2026';
+                    tripId.value = id;
+                    
+                    onSnapshot(doc(db, "trips", id), (snap) => {
+                        if (snap.exists()) {
+                            Object.assign(tripData, snap.data());
+                        } else {
+                            // 初始資料
+                            tripData.days = getInitialItinerary();
+                            tripData.hotels = getInitialHotels();
+                            tripData.flights = getInitialFlights();
+                            tripData.todos = getInitialTodos();
+                            saveToFirebase();
+                        }
+                        loading.value = false;
+                    });
+                };
+
+                const saveToFirebase = async () => {
+                    if (!db || !tripId.value) return;
+                    await setDoc(doc(db, "trips", tripId.value), JSON.parse(JSON.stringify(tripData)));
+                };
+
+                watch(tripData, () => {
+                    clearTimeout(saveTimeout);
+                    saveTimeout = setTimeout(saveToFirebase, 1000);
+                }, { deep: true });
+
+                const fetchWeather = async () => {
+                    const day = currentDay.value;
+                    if (!day.lat) return;
+                    const url = `https://api.open-meteo.com/v1/forecast?latitude=${day.lat}&longitude=${day.lon}&current=temperature_2m,weather_code,apparent_temperature,precipitation&timezone=auto`;
+                    const res = await fetch(url);
+                    const data = await res.json();
+                    weatherData.value = { 
+                        temp: Math.round(data.current.temperature_2m), 
+                        code: data.current.weather_code,
+                        feelsLike: Math.round(data.current.apparent_temperature),
+                        rain: data.current.precipitation
+                    };
+                };
+                watch(currentDayIdx, fetchWeather);
+                
+                const getWeatherIcon = (code) => {
+                    if (code <= 1) return 'ph-sun text-yellow-400';
+                    if (code <= 3) return 'ph-cloud-sun text-orange-200';
+                    if (code <= 67) return 'ph-cloud-rain text-blue-300';
+                    return 'ph-cloud text-gray-300';
+                };
+
+                onMounted(() => {
+                    initFirebase();
+                    fetchWeather();
+                });
+
+                return {
+                    tripData, activeTab, currentDayIdx, currentDay,
+                    showLogin, loginStep, inputPassword, loginError, verifyPassword, selectUser, guestLogin, logout,
+                    weatherData, getWeatherIcon, openMap, canEdit,
+                    newExpense, settlement, addExpense, deleteExpense,
+                    newTodo, addTodo, removeTodo
+                };
+            }
+        });
+
+        // 預設資料
+        function getInitialItinerary() { return [
+            { date: "5/5 (二)", lat: 22.3, lon: 113.9, items: [{ time: "19:30", title: "國泰航空 CX451", location: "桃園 T1", type: "transport", note: "開始旅程" }] },
+            { date: "5/6 (三)", lat: 40.4, lon: -3.7, items: [{ time: "09:15", title: "抵達馬德里", location: "Barajas Airport", type: "transport", note: "辦理入住" }, { time: "15:00", title: "市區遊覽", location: "Royal Palace", type: "spot", note: "馬德里皇宮" }] },
+            { date: "5/7 (四)", lat: 40.4, lon: -3.7, items: [{ time: "10:00", title: "太陽門廣場", location: "Puerta del Sol", type: "spot" }] },
+            { date: "5/8 (五)", lat: 40.4, lon: -3.7, items: [{ time: "10:00", title: "提森博物館", location: "Thyssen Museum", type: "spot" }] },
+            { date: "5/9 (六)", lat: 37.3, lon: -5.9, items: [{ time: "19:00", title: "前往塞維亞", location: "Atocha Station", type: "transport" }] },
+            { date: "5/10 (日)", lat: 37.3, lon: -5.9, items: [{ time: "10:00", title: "西班牙廣場", location: "Plaza de España", type: "spot" }] },
+            { date: "5/11 (一)", lat: 37.3, lon: -5.9, items: [{ time: "10:00", title: "塞維亞大教堂", location: "Seville Cathedral", type: "spot" }] },
+            { date: "5/12 (二)", lat: 41.3, lon: 2.1, items: [{ time: "12:25", title: "飛往巴塞隆納", location: "SVQ Airport", type: "transport" }] },
+            { date: "5/13 (三)", lat: 41.4, lon: 2.1, items: [{ time: "09:00", title: "聖家堂", location: "Sagrada Família", type: "spot" }] },
+            { date: "5/14 (四)", lat: 41.3, lon: 2.1, items: [{ time: "10:00", title: "畢卡索博物館", location: "Picasso Museum", type: "spot" }] },
+            { date: "5/15 (五)", lat: 38.7, lon: -9.1, items: [{ time: "12:00", title: "飛往里斯本", location: "BCN Airport", type: "transport" }] },
+            { date: "5/16 (六)", lat: 38.7, lon: -9.1, items: [{ time: "10:00", title: "里斯本老城", location: "Alfama", type: "spot" }] },
+            { date: "5/17 (日)", lat: 38.7, lon: -9.2, items: [{ time: "10:00", title: "貝倫區", location: "Belém", type: "spot" }] },
+            { date: "5/18 (一)", lat: 41.1, lon: -8.6, items: [{ time: "09:00", title: "前往波多", location: "Porto", type: "spot" }] },
+            { date: "5/19 (二)", lat: 41.8, lon: 12.4, items: [{ time: "12:00", title: "飛往羅馬", location: "Porto Airport", type: "transport" }] },
+            { date: "5/20 (三)", lat: 41.8, lon: 12.4, items: [{ time: "09:00", title: "競技場", location: "Colosseum", type: "spot" }] },
+            { date: "5/21 (四)", lat: 41.9, lon: 12.4, items: [{ time: "09:00", title: "梵蒂岡博物館", location: "Vatican Museum", type: "spot" }] },
+            { date: "5/22 (五)", lat: 41.9, lon: 12.4, items: [{ time: "10:00", title: "博爾蓋塞美術館", location: "Galleria Borghese", type: "spot" }] },
+            { date: "5/23 (六)", lat: 43.7, lon: 11.2, items: [{ time: "15:35", title: "火車往佛羅倫斯", location: "Firenze SMN", type: "transport" }] },
+            { date: "5/24 (日)", lat: 43.7, lon: 11.2, items: [{ time: "10:00", title: "烏菲茲美術館", location: "Uffizi Gallery", type: "spot" }] },
+            { date: "5/25 (一)", lat: 45.4, lon: 9.1, items: [{ time: "08:21", title: "火車往米蘭", location: "Milano Centrale", type: "transport" }] },
+            { date: "5/26 (二)", lat: 45.6, lon: 8.7, items: [{ time: "12:45", title: "搭機返台", location: "MXP Airport", type: "transport" }] }
+        ]; }
+
+        function getInitialHotels() { return [
+            { tag: "5/6-5/8", date: "5/6 (三) - 2晚", name: "托雷斯阿迪拉姆飯店", eng: "Tres Torres Atiram Hotel", address: "Barcelona, Spain" },
+            { tag: "5/9-5/11", date: "5/9 (六) - 3晚", name: "LETOH LETOH 飯店", eng: "LETOH LETOH Hotel", address: "Sevilla, Spain" },
+            { tag: "5/12-5/14", date: "5/12 (二) - 3晚", name: "阿凱隆飯店", eng: "Arcelon Hotel", address: "Barcelona, Spain" },
+            { tag: "5/15-5/17", date: "5/15 (五) - 3晚", name: "Trip2Portugal 旅館", eng: "GuestHouse by Trip2Portugal", address: "Lisbon, Portugal" },
+            { tag: "5/18", date: "5/18 (一) - 1晚", name: "東京 chic&basic Hoose", eng: "chic&basic Tokyo Hoose", address: "Porto, Portugal" },
+            { tag: "5/19-5/22", date: "5/19 (二) - 4晚", name: "羅馬C俱樂部飯店", eng: "C-hotels Club House Roma", address: "Roma, Italy" },
+            { tag: "5/23-5/24", date: "5/23 (六) - 2晚", name: "波普藝術公寓", eng: "PopArtment", address: "Firenze, Italy" },
+            { tag: "5/25", date: "5/25 (一) - 1晚", name: "Limehome Milan", eng: "Limehome Milan Park Towers", address: "Milano, Italy" }
+        ]; }
+
+        function getInitialFlights() { return [
+            { type: "去程 - 第1段", date: "5/5", airline: "國泰 CX451", from: "TPE 桃園", to: "HKG 香港", depTime: "19:30", arrTime: "21:30", duration: "2h" },
+            { type: "去程 - 第2段", date: "5/6", airline: "國泰 CX315", from: "HKG 香港", to: "MAD 馬德里", depTime: "00:45", arrTime: "09:15", duration: "14h" },
+            { type: "回程 - 第1段", date: "5/26", airline: "國泰 CX234", from: "MXP 米蘭", to: "HKG 香港", depTime: "12:45", arrTime: "06:30", duration: "11h" }
+        ]; }
+
+        function getInitialTodos() { return [{ id: 1, text: "購買旅平險", done: false }, { id: 2, text: "換好歐元現金", done: false }]; }
+
+        app.mount('#app');
+    </script>
+</body>
+</html>
