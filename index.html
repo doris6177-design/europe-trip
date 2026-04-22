@@ -29,6 +29,23 @@
         }
         
         .card-shadow { box-shadow: 0 4px 15px rgba(93, 64, 55, 0.05); }
+        .flight-divider {
+            position: relative;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .flight-divider::before {
+            content: "";
+            position: absolute;
+            width: 1px;
+            height: 100%;
+            border-left: 2px dashed #D7CCC8;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0.5;
+        }
         .slide-up-enter-active, .slide-up-leave-active { transition: all 0.3s ease; }
         .slide-up-enter-from, .slide-up-leave-to { transform: translateY(10px); opacity: 0; }
 
@@ -39,7 +56,20 @@
         }
         @media (max-width: 639px) {
             #app { height: 100dvh; width: 100vw; background-color: #F8F3ED; }
+        }   
+        .collapse-enter-active,
+        .collapse-leave-active {
+            transition: all 0.25s ease;
+            max-height: 300px;
         }
+
+        .collapse-enter-from,
+        .collapse-leave-to {
+            opacity: 0;
+            max-height: 0;
+            transform: translateY(-4px);
+        }
+
     </style>
 </head>
 <body>
@@ -124,14 +154,106 @@
                                 :class="item.type === 'transport' ? 'bg-[#EFEBE9] text-[#8D6E63]' : 'bg-[#5D4037] text-white'">
                                 <i class="ph-fill text-sm" :class="item.type === 'transport' ? 'ph-train' : 'ph-map-pin'"></i>
                             </div>
-                            <div class="bg-white p-4 rounded-2xl card-shadow border border-[#F5F5F5]">
-                                <span class="text-[10px] font-mono font-bold text-[#A1887F] bg-[#F8F3ED] px-1.5 py-0.5 rounded">{{ item.time }}</span>
-                                <h3 class="font-bold text-[#5D4037] mt-1">{{ item.title }}</h3>
+                            <div class="bg-white p-4 rounded-2xl card-shadow border border-[#F5F5F5] relative">
+
+                                <!-- emoji + 標題 -->
+                                <h3 class="font-bold text-[#5D4037] mt-1 flex items-center gap-1">
+                                    <span v-if="item.type==='spot'">📍</span>
+                                    <span v-if="item.type==='transport'">✈️</span>
+                                    <span v-if="item.subtype && item.subtype==='museum'">🏛</span>
+                                    <span v-if="item.subtype && item.subtype==='gallery'">🎨</span>
+                                    <span v-if="item.subtype && item.subtype==='landmark'">📍</span>
+                                    {{ item.title }}
+                                </h3>
+
+                                <!-- 時間 -->
+                                <span class="text-[10px] font-mono font-bold text-[#A1887F] bg-[#F8F3ED] px-1.5 py-0.5 rounded">
+                                    {{ item.time }}
+                                </span>
+
+                                <!-- 地點 -->
                                 <p class="text-[11px] text-[#8D6E63] mt-1 flex items-center gap-1" @click="openMap(item.location)">
                                     <i class="ph ph-map-pin"></i> {{ item.location }}
                                 </p>
-                                <p v-if="item.note" class="text-[11px] text-[#A1887F] mt-2 bg-gray-50 p-2 rounded">{{ item.note }}</p>
+
+                                <!-- 🚇 浮起來的交通（跟 icon 齊平） -->
+                                <div v-if="item.transport"
+                                    class="mt-2 flex items-center gap-2 text-[10px] font-bold 
+                                    bg-[#E8F5E9] text-[#2E7D32] px-2 py-1 rounded-full w-fit">
+
+                                    <i class="ph ph-train"></i>
+
+                                    {{ item.transport.from }} → {{ item.transport.to }}
+
+                                    <span class="opacity-60">({{ item.transport.duration }})</span>
+                                </div>
+
+                                <!-- 🔗 預約 -->
+                                <div v-if="item.booking"
+                                    class="mt-2 flex items-center gap-2 text-[10px]">
+
+                                    <!-- icon -->
+                                    <span class="w-6 h-6 flex items-center justify-center rounded-full bg-[#F8F3ED]">
+                                        <i class="ph ph-ticket"></i>
+                                    </span>
+
+                                    <!-- status -->
+                                    <span class="px-2 py-1 rounded-full font-bold"
+                                        :class="item.booking?.status === 'booked'
+                                            ? 'bg-green-100 text-green-700'
+                                            : 'bg-orange-100 text-orange-700'">
+
+                                        {{ item.booking?.status === 'booked' ? '已預約' : '未填' }}
+                                    </span>
+
+                                    <!-- link -->
+                                    <a v-if="item.booking.link"
+                                        :href="item.booking.link"
+                                        target="_blank"
+                                        class="text-blue-500 underline ml-auto">
+                                        🔗詳細
+                                    </a>
+                                </div>
+
+                                <!-- 📌 備案推薦（可收合） -->
+                                <div v-if="item.backups && item.backups.length > 0" class="mt-3 pt-3 border-t border-gray-100">
+
+                                    <button
+                                        @click="toggleBackup(idx)"
+                                        class="flex items-center gap-1 text-[10px] font-bold text-orange-600 w-full justify-between">
+
+                                        <span>
+                                            <i class="ph-bold ph-list-star mr-1"></i>
+                                            景點介紹 ({{ item.backups.length }})
+                                        </span>
+
+                                        <i class="ph-bold" :class="showBackups[idx] ? 'ph-caret-up' : 'ph-caret-down'"></i>
+                                    </button>
+
+                                    <transition name="collapse">
+                                        <div v-show="showBackups[idx]" class="mt-2 space-y-2 overflow-hidden">
+                                            <div
+                                                v-for="(b, bIdx) in item.backups"
+                                                :key="bIdx"
+                                                class="text-[11px] text-[#5D4037] bg-orange-50 p-2 rounded-lg border border-orange-100">
+
+                                                <div class="font-bold">{{ b.title }}</div>
+                                                <div class="text-[10px] text-[#8D6E63] mt-1">{{ b.note }}</div>
+                                                <div class="text-[10px] text-[#8D6E63] mt-1 whitespace-pre-line">{{ b.note }}</div>
+
+                                            </div>
+                                        </div>
+                                    </transition>
+                                </div>
                             </div>
+                        </div>
+
+                        <!-- ✏️ 每日 Remark -->
+                        <div class="mt-6">
+                            <textarea v-model="currentDay.remark"
+                                placeholder="✏️ 今日備註..."
+                                class="w-full bg-white border border-[#EFEBE9] rounded-xl p-3 text-xs">
+                            </textarea>
                         </div>
                     </div>
                 </div>
@@ -155,26 +277,51 @@
             </transition>
 
             <transition name="slide-up" mode="out-in">
-                <div v-if="activeTab === 'flights'" key="flights" class="space-y-4">
-                    <div v-for="(flight, idx) in tripData.flights" :key="idx" class="bg-white rounded-3xl p-6 card-shadow border border-[#F5F5F5]">
-                        <div class="flex justify-between mb-4">
-                            <span class="text-[10px] font-black text-[#A1887F] uppercase tracking-widest">{{ flight.type }}</span>
-                            <span class="text-xs font-bold text-[#5D4037] bg-[#EFEBE9] px-2 py-0.5 rounded-md">{{ flight.airline }}</span>
+                <div v-if="activeTab === 'flights'" key="flights" class="space-y-0">
+                    <div v-for="(flight, idx) in tripData.flights" :key="idx">
+                        
+                        <div v-if="flight.type.includes('回程') && idx > 0 && tripData.flights[idx-1].type.includes('去程')" class="py-6 flex items-center gap-4">
+                            <div class="flex-1 h-[1px] bg-[#D7CCC8] opacity-30"></div>
+                            <span class="text-[10px] font-black text-[#A1887F] tracking-[0.3em]">RETURN</span>
+                            <div class="flex-1 h-[1px] bg-[#D7CCC8] opacity-30"></div>
                         </div>
-                        <div class="flex justify-between items-center text-center">
-                            <div>
-                                <div class="text-2xl font-black text-[#5D4037]">{{ flight.from.split(' ')[0] }}</div>
-                                <div class="text-xs font-bold text-[#A1887F] mt-1">{{ flight.depTime }}</div>
+
+                        <div class="bg-white rounded-3xl p-6 card-shadow border border-[#F5F5F5] mb-4">
+                            <div class="flex justify-between mb-4">
+                                <span class="text-[10px] font-black px-2 py-1 rounded-md uppercase tracking-wider"
+                                    :class="flight.type.includes('去程') ? 'bg-[#E8F5E9] text-[#2E7D32]' : 'bg-[#E3F2FD] text-[#1565C0]'">
+                                    {{ flight.type }}
+                                </span>
+                                <span class="text-xs font-bold text-[#5D4037] bg-[#F5F5F5] px-2 py-1 rounded-md">{{ flight.airline }}</span>
                             </div>
-                            <div class="flex flex-col items-center opacity-30">
-                                <span class="text-[9px] mb-1 font-bold">{{ flight.duration }}</span>
-                                <i class="ph-fill ph-airplane-tilt text-2xl"></i>
+                            <div class="flex justify-between items-center text-center">
+                                <div>
+                                    <div class="text-2xl font-black text-[#5D4037]">{{ flight.from.split(' ')[0] }}</div>
+                                    <div class="text-xs font-bold text-[#A1887F] mt-1">{{ flight.depTime }}</div>
+                                </div>
+                                <div class="flex flex-col items-center px-4">
+                                    <span class="text-[9px] mb-1 font-bold text-[#D7CCC8]">{{ flight.duration }}</span>
+                                    <div class="w-16 h-[2px] bg-[#EFEBE9] relative">
+                                        <i class="ph-fill ph-airplane-tilt absolute -top-2 left-1/2 -translate-x-1/2 text-[#D7CCC8] text-lg"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="text-2xl font-black text-[#5D4037]">{{ flight.to.split(' ')[0] }}</div>
+                                    <div class="text-xs font-bold text-[#A1887F] mt-1">{{ flight.arrTime }}</div>
+                                </div>
                             </div>
-                            <div>
-                                <div class="text-2xl font-black text-[#5D4037]">{{ flight.to.split(' ')[0] }}</div>
-                                <div class="text-xs font-bold text-[#A1887F] mt-1">{{ flight.arrTime }}</div>
+                            <div class="mt-4 pt-4 border-t border-dashed border-[#EFEBE9] flex justify-between text-[10px] font-bold text-[#A1887F]">
+                                <span>{{ flight.date }}</span>
+                                <span>艙等: 經濟艙</span>
                             </div>
                         </div>
+
+                        <div v-if="idx < tripData.flights.length - 1 && 
+                            ((flight.type.includes('去程') && tripData.flights[idx+1].type.includes('去程')) || 
+                            (flight.type.includes('回程') && tripData.flights[idx+1].type.includes('回程')))" 
+                            class="flight-divider">
+                        </div>
+
                     </div>
                 </div>
             </transition>
@@ -302,6 +449,14 @@
 
                 const canEdit = computed(() => userRole.value === 'admin');
                 const currentDay = computed(() => tripData.days[currentDayIdx.value] || { items: [] });
+                const openNotes = ref({});
+                const toggleNote = (idx) => {
+                    openNotes.value[idx] = !openNotes.value[idx];
+                };
+                const showBackups = ref({});
+                const toggleBackup = (idx) => {
+                    showBackups.value[idx] = !showBackups.value[idx];
+                };
 
                 // Methods
                 const verifyPassword = () => {
@@ -369,6 +524,15 @@
                     onSnapshot(doc(db, "trips", id), (snap) => {
                         if (snap.exists()) {
                             Object.assign(tripData, snap.data());
+
+                            // ✅ 初始化 showDetail
+                            tripData.days.forEach(day => {
+                                day.items.forEach(item => {
+                                    if (item.showDetail === undefined) {
+                                        item.showDetail = false;
+                                    }
+                                });
+                            });
                         } else {
                             // 初始資料
                             tripData.days = getInitialItinerary();
@@ -423,35 +587,35 @@
                     showLogin, loginStep, inputPassword, loginError, verifyPassword, selectUser, guestLogin, logout,
                     weatherData, getWeatherIcon, openMap, canEdit,
                     newExpense, settlement, addExpense, deleteExpense,
-                    newTodo, addTodo, removeTodo
+                    newTodo, addTodo, removeTodo, openNotes, toggleNote, showBackups, toggleBackup
                 };
             }
         });
 
         // 預設資料
         function getInitialItinerary() { return [
-            { date: "5/5 (二)", lat: 22.3, lon: 113.9, items: [{ time: "19:30", title: "國泰航空 CX451", location: "桃園 T1", type: "transport", note: "開始旅程" }] },
-            { date: "5/6 (三)", lat: 40.4, lon: -3.7, items: [{ time: "09:15", title: "抵達馬德里", location: "Barajas Airport", type: "transport", note: "辦理入住" }, { time: "15:00", title: "市區遊覽", location: "Royal Palace", type: "spot", note: "馬德里皇宮" }] },
-            { date: "5/7 (四)", lat: 40.4, lon: -3.7, items: [{ time: "10:00", title: "太陽門廣場", location: "Puerta del Sol", type: "spot" }] },
-            { date: "5/8 (五)", lat: 40.4, lon: -3.7, items: [{ time: "10:00", title: "提森博物館", location: "Thyssen Museum", type: "spot" }] },
-            { date: "5/9 (六)", lat: 37.3, lon: -5.9, items: [{ time: "19:00", title: "前往塞維亞", location: "Atocha Station", type: "transport" }] },
-            { date: "5/10 (日)", lat: 37.3, lon: -5.9, items: [{ time: "10:00", title: "西班牙廣場", location: "Plaza de España", type: "spot" }] },
-            { date: "5/11 (一)", lat: 37.3, lon: -5.9, items: [{ time: "10:00", title: "塞維亞大教堂", location: "Seville Cathedral", type: "spot" }] },
-            { date: "5/12 (二)", lat: 41.3, lon: 2.1, items: [{ time: "12:25", title: "飛往巴塞隆納", location: "SVQ Airport", type: "transport" }] },
-            { date: "5/13 (三)", lat: 41.4, lon: 2.1, items: [{ time: "09:00", title: "聖家堂", location: "Sagrada Família", type: "spot" }] },
-            { date: "5/14 (四)", lat: 41.3, lon: 2.1, items: [{ time: "10:00", title: "畢卡索博物館", location: "Picasso Museum", type: "spot" }] },
-            { date: "5/15 (五)", lat: 38.7, lon: -9.1, items: [{ time: "12:00", title: "飛往里斯本", location: "BCN Airport", type: "transport" }] },
-            { date: "5/16 (六)", lat: 38.7, lon: -9.1, items: [{ time: "10:00", title: "里斯本老城", location: "Alfama", type: "spot" }] },
-            { date: "5/17 (日)", lat: 38.7, lon: -9.2, items: [{ time: "10:00", title: "貝倫區", location: "Belém", type: "spot" }] },
-            { date: "5/18 (一)", lat: 41.1, lon: -8.6, items: [{ time: "09:00", title: "前往波多", location: "Porto", type: "spot" }] },
-            { date: "5/19 (二)", lat: 41.8, lon: 12.4, items: [{ time: "12:00", title: "飛往羅馬", location: "Porto Airport", type: "transport" }] },
-            { date: "5/20 (三)", lat: 41.8, lon: 12.4, items: [{ time: "09:00", title: "競技場", location: "Colosseum", type: "spot" }] },
-            { date: "5/21 (四)", lat: 41.9, lon: 12.4, items: [{ time: "09:00", title: "梵蒂岡博物館", location: "Vatican Museum", type: "spot" }] },
-            { date: "5/22 (五)", lat: 41.9, lon: 12.4, items: [{ time: "10:00", title: "博爾蓋塞美術館", location: "Galleria Borghese", type: "spot" }] },
-            { date: "5/23 (六)", lat: 43.7, lon: 11.2, items: [{ time: "15:35", title: "火車往佛羅倫斯", location: "Firenze SMN", type: "transport" }] },
-            { date: "5/24 (日)", lat: 43.7, lon: 11.2, items: [{ time: "10:00", title: "烏菲茲美術館", location: "Uffizi Gallery", type: "spot" }] },
-            { date: "5/25 (一)", lat: 45.4, lon: 9.1, items: [{ time: "08:21", title: "火車往米蘭", location: "Milano Centrale", type: "transport" }] },
-            { date: "5/26 (二)", lat: 45.6, lon: 8.7, items: [{ time: "12:45", title: "搭機返台", location: "MXP Airport", type: "transport" }] }
+            { date: "5/5 (二)", lat: 22.3, lon: 113.9, remark: "", items: [{ time: "19:30", title: "國泰航空 CX451", location: "桃園 T1", type: "transport", note: "開始旅程" }] },
+            { date: "5/6 (三)", lat: 40.4, lon: -3.7,  remark: "",items: [{ time: "09:15", title: "抵達馬德里", location: "Barajas Airport", type: "transport", note: "辦理入住",transport: {from: "機場",to: "市區",duration: "30分"},booking: {status: "pending",link: ""} }, { time: "15:00", title: "市區遊覽", location: "Royal Palace", type: "spot", note: "馬德里皇宮" }] },
+            { date: "5/7 (四)", lat: 40.4, lon: -3.7, remark: "",items: [{ time: "10:00", title: "太陽門廣場", location: "Puerta del Sol", type: "spot", backups: [ { title: "太陽門廣場", note: "馬德里太陽門廣場（Puerta del Sol）歷史悠久，16世紀前因城牆東門有太陽裝飾而得名。1570年起成為廣場，是西班牙公路「零公里」起點。廣場以18世紀新古典風格的郵局大樓（現郵政局）最著名，其鐘樓自1863年起便成為西班牙跨年倒數的傳統地標。 \n太陽門廣場歷史關鍵點： \n❞起源與城門（16世紀前）： 早期這裡是一座城牆的門戶，因面向東方且裝飾有太陽圖案，被稱為太陽門。 \n❞廣場形成（1570年起）： 原有的城門被拆除，空間改建為廣場，逐漸成為馬德里的商業和行政中心。 \n❞郵局大樓（18世紀）： 1766年法國建築師為查理三世設計了這座新古典主義風格的郵局大樓（Casa de Correos），如今是廣場最具代表性的歷史建築。 \n❞零公里地標（1950年起）： 在市政大樓前的人行道上設置了「零公里（Kilómetro Cero）」磁磚地標，代表西班牙所有公路的起點。 \n❞鐘樓與跨年傳統： 1863年由鐘錶匠José Rodríguez Losada製作的鐘樓，開啟了每年12月31日夜間伴隨12響鐘聲吃葡萄的傳統。 \n❞著名地標： 除了郵局大樓，廣場上還有「熊與草莓樹雕像」和卡洛斯三世國王騎馬像。" } ] }] },
+            { date: "5/8 (五)", lat: 40.4, lon: -3.7, remark: "",items: [{ time: "10:00", title: "提森博物館", subtype: "museum", location: "Thyssen Museum", type: "spot" }] },
+            { date: "5/9 (六)", lat: 37.3, lon: -5.9, remark: "",items: [{ time: "19:00", title: "前往塞維亞", location: "Atocha Station", type: "transport" }] },
+            { date: "5/10 (日)", lat: 37.3, lon: -5.9, remark: "",items: [{ time: "10:00", title: "西班牙廣場", location: "Plaza de España", type: "spot" }] },
+            { date: "5/11 (一)", lat: 37.3, lon: -5.9, remark: "",items: [{ time: "10:00", title: "塞維亞大教堂", location: "Seville Cathedral", type: "spot" }] },
+            { date: "5/12 (二)", lat: 41.3, lon: 2.1, remark: "",items: [{ time: "12:25", title: "飛往巴塞隆納", location: "SVQ Airport", type: "transport" }] },
+            { date: "5/13 (三)", lat: 41.4, lon: 2.1, remark: "",items: [{ time: "09:00", title: "聖家堂", location: "Sagrada Família", type: "spot" , booking: { status: "pending", link: "https://sagradafamilia.org/en/sagrada-familia-ticket" }}] },
+            { date: "5/14 (四)", lat: 41.3, lon: 2.1, remark: "",items: [{ time: "10:00", title: "畢卡索博物館", location: "Picasso Museum", type: "spot" }] },
+            { date: "5/15 (五)", lat: 38.7, lon: -9.1, remark: "",items: [{ time: "12:00", title: "飛往里斯本", location: "BCN Airport", type: "transport" }] },
+            { date: "5/16 (六)", lat: 38.7, lon: -9.1, remark: "",items: [{ time: "10:00", title: "里斯本老城", location: "Alfama", type: "spot" }] },
+            { date: "5/17 (日)", lat: 38.7, lon: -9.2, remark: "",items: [{ time: "10:00", title: "貝倫區", location: "Belém", type: "spot" }] },
+            { date: "5/18 (一)", lat: 41.1, lon: -8.6, remark: "",items: [{ time: "09:00", title: "前往波多", location: "Porto", type: "spot" }] },
+            { date: "5/19 (二)", lat: 41.8, lon: 12.4, remark: "",items: [{ time: "12:00", title: "飛往羅馬", location: "Porto Airport", type: "transport" }] },
+            { date: "5/20 (三)", lat: 41.8, lon: 12.4, remark: "",items: [{ time: "09:00", title: "競技場", location: "Colosseum", type: "spot" }] },
+            { date: "5/21 (四)", lat: 41.9, lon: 12.4, remark: "",items: [{ time: "09:00", title: "梵蒂岡博物館", location: "Vatican Museum", type: "spot" , booking: { status: "booked", link: "https://tickets.vatican.va" }}] },
+            { date: "5/22 (五)", lat: 41.9, lon: 12.4, remark: "",items: [{ time: "10:00", title: "博爾蓋塞美術館", location: "Galleria Borghese", type: "spot" }] },
+            { date: "5/23 (六)", lat: 43.7, lon: 11.2, remark: "",items: [{ time: "15:35", title: "火車往佛羅倫斯", location: "Firenze SMN", type: "transport" }] },
+            { date: "5/24 (日)", lat: 43.7, lon: 11.2, remark: "",items: [{ time: "10:00", title: "烏菲茲美術館", location: "Uffizi Gallery", type: "spot" }] },
+            { date: "5/25 (一)", lat: 45.4, lon: 9.1, remark: "",items: [{ time: "08:21", title: "火車往米蘭", location: "Milano Centrale", type: "transport" }] },
+            { date: "5/26 (二)", lat: 45.6, lon: 8.7, remark: "",items: [{ time: "12:45", title: "搭機返台", location: "MXP Airport", type: "transport" }] }
         ]; }
 
         function getInitialHotels() { return [
@@ -468,7 +632,8 @@
         function getInitialFlights() { return [
             { type: "去程 - 第1段", date: "5/5", airline: "國泰 CX451", from: "TPE 桃園", to: "HKG 香港", depTime: "19:30", arrTime: "21:30", duration: "2h" },
             { type: "去程 - 第2段", date: "5/6", airline: "國泰 CX315", from: "HKG 香港", to: "MAD 馬德里", depTime: "00:45", arrTime: "09:15", duration: "14h" },
-            { type: "回程 - 第1段", date: "5/26", airline: "國泰 CX234", from: "MXP 米蘭", to: "HKG 香港", depTime: "12:45", arrTime: "06:30", duration: "11h" }
+            { type: "回程 - 第1段", date: "5/26", airline: "國泰 CX234", from: "MXP 米蘭", to: "HKG 香港", depTime: "12:45", arrTime: "06:30", duration: "11h" },
+            { type: "回程 - 第2段", date: "5/27", airline: "國泰 cx488", from: "HKG 香港", to: "TPE 桃園", depTime: "07:50", arrTime: "09:50", duration: "2h" }
         ]; }
 
         function getInitialTodos() { return [{ id: 1, text: "購買旅平險", done: false }, { id: 2, text: "換好歐元現金", done: false }]; }
