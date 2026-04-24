@@ -4,10 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Europe Trip | 西班牙・葡萄牙・義大利 2026</title>
+
     
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#5D4037">
+    <link rel="apple-touch-icon" href="/icon.png">
 
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Roboto:wght@500;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
@@ -69,6 +73,261 @@
             max-height: 0;
             transform: translateY(-4px);
         }
+        /* ========================================= */
+        /* 復古票券 CSS 更新 */
+        /* ========================================= */
+
+        /* 1. 全域復古色彩定義 */
+        .text-doris { color: #1E2A38; } /* Doris 的復古紅 */
+        .border-doris { border-color: #1E2A38 !important; }
+        .text-scott { color: #1976D2; } /* Scott 的復古藍 */
+        .border-scott { border-color: #1976D2 !important; }
+
+        .boarding-pass {
+            background-color: #FDFBF7;
+            background-image: radial-gradient(#D7CCC8 0.5px, transparent 0.5px);
+            background-size: 4px 4px; /* 輕微的網點感 */
+            border-left: 4px solid #1E2A38;
+        }
+
+        /* 調整水印大小 */
+        .pass-watermark {
+            font-size: 5rem;
+            opacity: 0.04;
+        }
+
+        /* 登機證標籤與內容小樣式 */
+        .pass-label { 
+                        font-size: 8px; 
+                        font-weight: 900; 
+                        color: #D7CCC8; 
+                        tracking-widest: 0.1em; 
+                        text-transform: uppercase; 
+                    }
+
+        /* 復古轉機垂直虛線 */
+        .flight-divider-classic {
+            height: 16px;
+            position: relative;
+        }
+        .flight-divider-classic::before {
+            content: "";
+            position: absolute;
+            width: 2px;
+            height: 100%;
+            border-left: 2px dashed rgba(215, 204, 200, 0.4);
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        /* 讓票券整體變短的關鍵：移除 min-height 或 flex-1 */
+        .train-ticket {
+            min-height: auto; /* 讓內容決定高度 */
+            background-color: #FDFBF7;
+            margin-bottom: 4px;
+        }
+
+        /* 迷你版浮水印：縮小且靠右下，不佔用中央視覺空間 */
+        .pass-watermark-mini {
+            position: absolute;
+            bottom: 10px;
+            right: 15px;
+            font-size: 3.5rem;
+            color: rgba(93, 64, 55, 0.03);
+            z-index: 0;
+            pointer-events: none;
+            transform: rotate(-10deg);
+        }
+
+        /* 調整票券缺口大小以適應變小的票券 */
+        .ticket-notch {
+            width: 16px;
+            height: 16px;
+            background-color: #F8F3ED; /* 需與背景色相同 */
+            border: 1px solid rgba(215, 204, 200, 0.2);
+        }
+        .notch-tl { top: -8px; left: -8px; }
+        .notch-tr { top: -8px; right: -8px; }
+        .notch-bl { bottom: -8px; left: -8px; }
+        .notch-br { bottom: -8px; right: -8px; }
+
+        .train-ticket {
+            background-color: #FDFBF7 !important; /* 確保背景是實色而非透明 */
+            border-width: 1px;
+            /* 移除 min-height 防止被強行撐開 */
+            min-height: 0 !important; 
+        }
+
+        /* 確保地點文字夠明顯，填滿視覺空間 */
+        .train-ticket .text-base {
+            line-height: 1.1;
+            margin-top: 2px;
+        }
+
+
+        /* 標籤字體再縮小一點點 */
+        .pass-label {
+            font-size: 7px;
+            font-weight: 800;
+            color: #D7CCC8;
+            margin-bottom: -2px;
+        }
+
+        /* 飛機票專屬藍色調 */
+        .border-blue-200 { border-color: #BBDEFB; }
+        .bg-blue-50\/50 { background-color: rgba(231, 243, 255, 0.5); }
+        .text-blue-700 { color: #1976D2; }
+
+        /* 巴士票專屬灰色調 */
+        .border-gray-200 { border-color: #CFD8DC; }
+        .bg-gray-50\/50 { background-color: rgba(245, 245, 245, 0.5); }
+        .text-gray-700 { color: #455A64; }
+
+        :root {
+            --primary: #1E2A38;       /* 深藍 */
+            --secondary: #5C6B7A;     /* 灰藍 */
+            --bg: #F4F6F8;            /* 淺灰背景 */
+            --card: #FFFFFF;
+            --border: #E3E7EB;
+        }
+
+        /* 背景 */
+        body {
+            background-color: var(--bg);
+        }
+
+        /* 主色 */
+        .text-primary { color: var(--primary); }
+        .bg-primary { background-color: var(--primary); }
+
+        /* Header */
+        header {
+            background: #FFFFFF;
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* 卡片 */
+        .card-shadow:hover {
+            transform: translateY(-2px);
+            transition: 0.2s;
+        }
+
+        /* 次要文字 */
+        .text-secondary {
+            color: #8A97A6;
+        }
+
+        /* transport badge */
+        .bg-transport {
+            background-color: #EAF2F8;
+        }
+
+        .text-transport {
+            color: #3A5F85;
+        }
+        /* nav */
+        .glass-nav {
+            background: rgba(255,255,255,0.95);
+            border-top: 1px solid var(--border);
+        }
+        button {
+            transition: all 0.2s ease;
+        }
+        button:active {
+            transform: scale(0.96);
+        }        
+
+        /* 3D 翻轉容器 */
+        .ticket-container {
+            perspective: 1000px;
+            cursor: pointer;
+            /* 必須給定一個最小高度，或者確保它能被撐開 */
+            height: 140px; 
+            margin-bottom: 1rem;
+        }
+
+        .ticket-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+
+        /* 點擊後觸轉翻轉 */
+        .ticket-inner.is-flipped {
+            transform: rotateY(180deg);
+        }
+
+        /* 2. 確保正反面撐滿容器 */
+        .ticket-front, .ticket-back {
+            position: absolute;
+            inset: 0; /* 相當於 top:0, left:0, right:0, bottom:0 */
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 12px;
+            background-color: #FDFBF7;
+            -webkit-backface-visibility: hidden; /* 相容性 */
+        }
+
+        /* 背面初始狀態 */
+        .ticket-back {
+            transform: rotateY(180deg); /* 背面預設先轉 180 度隱藏起來 */
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 復古票券通用樣式 */
+        .train-ticket {
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .pass-label {
+            font-size: 7px;
+            font-weight: 800;
+            color: #D7CCC8;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .pass-watermark-mini {
+            position: absolute;
+            bottom: 10px;
+            right: 15px;
+            font-size: 3rem;
+            color: rgba(93, 64, 55, 0.03);
+            z-index: 0;
+            pointer-events: none;
+        }        
+
+        .ticket-container {
+            perspective: 1200px;
+            height: 180px;
+        }
+
+        .ticket-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.7s ease;
+            transform-style: preserve-3d;
+        }
+
+        .ticket-inner.is-flipped {
+            transform: rotateY(180deg);
+        }
+
+        .ticket-front, .ticket-back {
+            position: absolute;
+            inset: 0;
+            backface-visibility: hidden;
+        }
+
+        .ticket-back {
+            transform: rotateY(180deg);
+        }
+
 
     </style>
 </head>
@@ -117,7 +376,7 @@
         <header class="pt-10 pb-4 px-6 bg-[#FDFBF7] border-b border-[#EFEBE9] shrink-0">
             <div class="flex justify-between items-start mb-4">
                 <div>
-                    <div class="text-[10px] font-black text-[#D7CCC8] tracking-widest uppercase">ITINERARY 2026</div>
+                    <div class="text-[10px] font-black text-[#D7CCC8] -widestrackingt uppercase">ITINERARY 2026</div>
                     <h1 class="text-xl font-black text-[#5D4037]">{{ tripData.destination }}</h1>
                 </div>
                 <button @click="logout" class="w-8 h-8 rounded-full bg-[#F8F3ED] flex items-center justify-center text-[#A1887F]">
@@ -163,6 +422,7 @@
                                     <span v-if="item.subtype && item.subtype==='museum'">🏛</span>
                                     <span v-if="item.subtype && item.subtype==='gallery'">🎨</span>
                                     <span v-if="item.subtype && item.subtype==='landmark'">📍</span>
+                                    <span v-if="item.attachments?.length" class="text-green-600 text-xs">✔ 已上傳票券</span>
                                     {{ item.title }}
                                 </h3>
 
@@ -205,7 +465,7 @@
 
                                         {{ item.booking?.status === 'booked' ? '已預約' : '未填' }}
                                     </span>
-
+                                    
                                     <!-- link -->
                                     <a v-if="item.booking.link"
                                         :href="item.booking.link"
@@ -214,7 +474,33 @@
                                         🔗詳細
                                     </a>
                                 </div>
+                                <!-- 📎 附件區 -->
+                                <div v-if="item.attachments && item.attachments.length > 0" class="mt-3 pt-3 border-t border-gray-100">
+                                    <input type="file" multiple 
+                                            class="text-xs mb-2"
+                                            @change="uploadFile($event, item)" />
+                                    <div class="text-[10px] font-bold text-[#8D6E63] mb-2 flex items-center gap-1">
+                                        <i class="ph ph-paperclip"></i>票券 / QR Code
+                                    </div>
 
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <div v-for="(file, fidx) in item.attachments" :key="fidx"
+                                            class="bg-[#F8F3ED] rounded-lg p-2 text-center border border-[#EFEBE9]">
+
+                                            <!-- 圖片 -->
+                                            <img v-if="file.type === 'image' || file.type === 'qr'"
+                                                :src="file.url"
+                                                class="w-full h-20 object-cover rounded-md mb-1" />
+
+                                            <!-- PDF / ticket -->
+                                            <div v-else class="text-xs font-bold text-[#5D4037]">
+                                                🎫 {{ file.name }}
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                </div>
                                 <!-- 📌 備案推薦（可收合） -->
                                 <div v-if="item.backups && item.backups.length > 0" class="mt-3 pt-3 border-t border-gray-100">
 
@@ -238,7 +524,6 @@
                                                 class="text-[11px] text-[#5D4037] bg-orange-50 p-2 rounded-lg border border-orange-100">
 
                                                 <div class="font-bold">{{ b.title }}</div>
-                                                <div class="text-[10px] text-[#8D6E63] mt-1">{{ b.note }}</div>
                                                 <div class="text-[10px] text-[#8D6E63] mt-1 whitespace-pre-line">{{ b.note }}</div>
 
                                             </div>
@@ -261,67 +546,300 @@
 
             <transition name="slide-up" mode="out-in">
                 <div v-if="activeTab === 'hotels'" key="hotels" class="space-y-4">
-                    <div v-for="(hotel, idx) in tripData.hotels" :key="idx" class="bg-white rounded-3xl p-5 card-shadow border border-[#F5F5F5]">
-                        <div class="flex justify-between items-start mb-2">
-                            <span class="bg-[#EFEBE9] text-[#8D6E63] px-2.5 py-1 rounded-lg text-[10px] font-bold">{{ hotel.tag }}</span>
-                            <span class="text-[10px] text-[#D7CCC8]">{{ hotel.date }}</span>
+                    
+                <div v-for="(h, idx) in tripData.hotels" :key="idx"
+                    class="ticket-container"
+                    @click="h._flip = !h._flip">
+
+                    <div class="ticket-inner" :class="{ 'is-flipped': h._flip }">
+
+                        <!-- FRONT：房卡正面 -->
+                        <div class="ticket-front rounded-2xl overflow-hidden border border-[#E3E7EB] bg-[#FDFBF7]">
+
+                            <!-- 黑色磁條 -->
+                            <div class="h-6 bg-[#1E2A38]"></div>
+
+                            <div class="p-4 relative">
+
+                                <!-- 印章 -->
+                                <div class="absolute top-4 right-4 rotate-[-15deg]">
+                                    <div class="px-3 py-1 border-2 text-[10px] font-black rounded"
+                                        :class="h.status === 'confirmed' 
+                                            ? 'border-green-600 text-green-600' 
+                                            : 'border-orange-500 text-orange-500'">
+                                        {{ h.status.toUpperCase() }}
+                                    </div>
+                                </div>
+
+                                <!-- 標題 -->
+                                <div class="text-[10px] text-[#A1887F] tracking-widest font-bold">
+                                    HOTEL KEY CARD
+                                </div>
+
+                                <div class="text-lg font-black text-[#5D4037]">
+                                    {{ h.name }}
+                                </div>
+
+                                <div class="text-[11px] text-[#8D6E63]">
+                                    {{ h.eng }}
+                                </div>
+
+                                <!-- 房號 -->
+                                <div class="flex justify-between mt-3">
+                                    <div>
+                                        <div class="text-[10px] text-[#A1887F]">ROOM</div>
+                                        <div class="text-2xl font-black text-[#1E2A38]">
+                                            {{ h.room || (100 + idx) }}
+                                        </div>
+                                    </div>
+
+                                    <div class="text-right">
+                                        <div class="text-[10px] text-[#A1887F]">DATE</div>
+                                        <div class="text-[11px] font-bold text-[#5D4037]">
+                                            {{ h.date }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- tap 提示 -->
+                                <div class="mt-3 text-center">
+                                    <span class="text-[9px] text-[#A1887F] font-bold animate-pulse">
+                                        TAP TO VIEW DETAILS ↺
+                                    </span>
+                                </div>
+
+                            </div>
                         </div>
-                        <h3 class="font-bold text-[#5D4037] text-lg">{{ hotel.name }}</h3>
-                        <p class="text-xs text-[#A1887F] italic mb-3">{{ hotel.eng }}</p>
-                        <div class="text-[11px] text-[#8D6E63] bg-[#FDFBF7] p-3 rounded-xl border border-[#EFEBE9] mb-4">
-                            {{ hotel.address }}
+
+                        <!-- BACK：詳細資訊 -->
+                        <div class="ticket-back rounded-2xl overflow-hidden border border-[#E3E7EB] bg-[#F4F6F8]">
+
+                            <div class="p-4 space-y-3">
+
+                                <!-- header -->
+                                <div class="text-center border-b border-dashed border-[#D7CCC8] pb-2">
+                                    <div class="text-[10px] font-black text-[#A1887F] tracking-widest">
+                                        HOTEL DETAILS
+                                    </div>
+                                </div>
+
+                                <!-- info -->
+                                <div class="grid grid-cols-2 gap-3 text-[11px]">
+
+                                    <div>
+                                        <div class="text-[#A1887F] font-bold text-[9px]">CHECK IN</div>
+                                        <div class="font-black text-[#5D4037]">{{ h.checkInTime || '15:00' }}</div>
+                                    </div>
+
+                                    <div>
+                                        <div class="text-[#A1887F] font-bold text-[9px]">CHECK OUT</div>
+                                        <div class="font-black text-[#5D4037]">{{ h.checkOutTime || '11:00' }}</div>
+                                    </div>
+
+                                    <div class="col-span-2">
+                                        <div class="text-[#A1887F] font-bold text-[9px]">LOCATION</div>
+                                        <div class="font-bold text-[#5D4037] flex items-center justify-between">
+                                            {{ h.address }}
+                                            <button @click.stop="openMap(h.address)"
+                                                class="text-[10px] text-blue-500 underline">
+                                                MAP
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <!-- QR 區（模擬） -->
+                                <div class="bg-white border border-[#E3E7EB] rounded-xl p-3 text-center">
+
+                                    <div class="text-[9px] text-[#A1887F] mb-2 font-bold">
+                                        CHECK-IN QR
+                                    </div>
+
+                                    <!-- 假 QR -->
+                                    <div class="w-full h-20 flex items-center justify-center">
+                                        <div class="grid grid-cols-6 gap-[2px]">
+                                            <div v-for="n in 36" :key="n"
+                                                class="w-2 h-2 bg-[#1E2A38] opacity-80"
+                                                :style="{ opacity: Math.random() > 0.5 ? 1 : 0.2 }">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <!-- footer stamp -->
+                                <div class="text-center text-[9px] tracking-widest text-[#D7CCC8] font-bold">
+                                    EUROPE HOTEL SYSTEM 2026
+                                </div>
+
+                            </div>
                         </div>
-                        <button @click="openMap(hotel.address)" class="w-full py-3 bg-[#5D4037] text-white rounded-xl text-sm font-bold shadow-sm active:scale-95 transition">導航地圖</button>
+
                     </div>
+                </div>
+
                 </div>
             </transition>
 
             <transition name="slide-up" mode="out-in">
-                <div v-if="activeTab === 'flights'" key="flights" class="space-y-0">
-                    <div v-for="(flight, idx) in tripData.flights" :key="idx">
+                <div v-if="activeTab === 'transport'" class="space-y-4 px-1">
+                    <div v-for="(t, idx) in tripData.transport" :key="idx" 
+                        class="ticket-container" 
+                        @click="toggleFlip(idx)">
                         
-                        <div v-if="flight.type.includes('回程') && idx > 0 && tripData.flights[idx-1].type.includes('去程')" class="py-6 flex items-center gap-4">
-                            <div class="flex-1 h-[1px] bg-[#D7CCC8] opacity-30"></div>
-                            <span class="text-[10px] font-black text-[#A1887F] tracking-[0.3em]">RETURN</span>
-                            <div class="flex-1 h-[1px] bg-[#D7CCC8] opacity-30"></div>
-                        </div>
-
-                        <div class="bg-white rounded-3xl p-6 card-shadow border border-[#F5F5F5] mb-4">
-                            <div class="flex justify-between mb-4">
-                                <span class="text-[10px] font-black px-2 py-1 rounded-md uppercase tracking-wider"
-                                    :class="flight.type.includes('去程') ? 'bg-[#E8F5E9] text-[#2E7D32]' : 'bg-[#E3F2FD] text-[#1565C0]'">
-                                    {{ flight.type }}
-                                </span>
-                                <span class="text-xs font-bold text-[#5D4037] bg-[#F5F5F5] px-2 py-1 rounded-md">{{ flight.airline }}</span>
-                            </div>
-                            <div class="flex justify-between items-center text-center">
-                                <div>
-                                    <div class="text-2xl font-black text-[#5D4037]">{{ flight.from.split(' ')[0] }}</div>
-                                    <div class="text-xs font-bold text-[#A1887F] mt-1">{{ flight.depTime }}</div>
-                                </div>
-                                <div class="flex flex-col items-center px-4">
-                                    <span class="text-[9px] mb-1 font-bold text-[#D7CCC8]">{{ flight.duration }}</span>
-                                    <div class="w-16 h-[2px] bg-[#EFEBE9] relative">
-                                        <i class="ph-fill ph-airplane-tilt absolute -top-2 left-1/2 -translate-x-1/2 text-[#D7CCC8] text-lg"></i>
+                        <div class="ticket-inner" :class="{ 'is-flipped': flippedTickets[idx] }">
+                            
+                            <div class="ticket-front train-ticket border"
+                                :class="{
+                                    'border-[#D7CCC8]': t.type === '火車',
+                                    'border-[#B0BEC5]': t.type === '巴士',
+                                    'border-[#90CAF9]': t.type === '飛機'
+                                }">
+                                <div class="px-5 py-4 relative">
+                                    <div class="pass-watermark-mini">
+                                        <i :class="{'ph ph-train': t.type === '火車', 'ph ph-bus': t.type === '巴士', 'ph ph-airplane': t.type === '飛機'}"></i>
+                                    </div>
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-[8px] font-black tracking-widest opacity-40 uppercase">{{ t.type }} TICKET</span>
+                                        <span class="text-[9px] font-bold text-[#A1887F]">{{ t.date }}</span>
+                                    </div>
+                                    <div class="font-black text-[#5D4037] text-sm mb-4">{{ t.title }}</div>
+                                    <div class="flex justify-between items-center text-center">
+                                        <div class="text-left">
+                                            <div class="pass-label">FROM</div>
+                                            <div class="text-lg font-serif font-black text-[#5D4037]">{{ t.from }}</div>
+                                        </div>
+                                        <div class="flex-1 flex flex-col items-center px-4">
+                                            <div class="w-full h-[1px] bg-[#5D4037]/20"></div>
+                                            <i class="ph-bold ph-caret-right text-[#5D4037]/30 text-[10px] mt-[-6px]"></i>
+                                        </div>
+                                        <div class="text-right">
+                                            <div class="pass-label">TO</div>
+                                            <div class="text-lg font-serif font-black text-[#5D4037]">{{ t.to }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3 text-center">
+                                        <span class="text-[8px] font-bold text-doris animate-pulse">TAP TO FLIP ↺</span>
                                     </div>
                                 </div>
-                                <div>
-                                    <div class="text-2xl font-black text-[#5D4037]">{{ flight.to.split(' ')[0] }}</div>
-                                    <div class="text-xs font-bold text-[#A1887F] mt-1">{{ flight.arrTime }}</div>
+                            </div>
+
+                            <div class="ticket-back train-ticket border"
+                                :class="{
+                                    'border-[#D7CCC8] bg-[#FDFBF7]': t.type === '火車',
+                                    'border-[#B0BEC5] bg-[#F5F7F8]': t.type === '巴士',
+                                    'border-[#90CAF9] bg-[#F0F7FF]': t.type === '飛機'
+                                }">
+                                <div class="p-4 flex flex-col justify-center h-full relative">
+                                    <div class="absolute inset-0 opacity-[0.03] pointer-events-none" 
+                                        style="background-image: repeating-linear-gradient(45deg, #000 0, #000 1px, transparent 0, transparent 50%); background-size: 8px 8px;">
+                                    </div>
+
+                                    <div class="text-center border-b border-dashed border-[#D7CCC8] pb-2 mb-3">
+                                        <div class="text-[10px] font-black text-[#A1887F] tracking-widest">TIMETABLE & INFO</div>
+                                    </div>
+
+                                    <div class="grid grid-cols-2 gap-y-3 px-2">
+                                        <div>
+                                            <div class="pass-label">DEPARTURE</div>
+                                            <div class="text-sm font-black text-[#5D4037]">{{ t.time }}</div>
+                                        </div>
+                                        <div>
+                                            <div class="pass-label">PLATFORM / GATE</div>
+                                            <div class="text-sm font-black text-doris">TBA</div>
+                                        </div>
+                                        <div>
+                                            <div class="pass-label">SERVICE NO.</div>
+                                            <div class="text-sm font-black text-[#5D4037]">{{ t.title.split(' ')[0] }}{{ idx + 101 }}</div>
+                                        </div>
+                                        <div>
+                                            <div class="pass-label">STATUS</div>
+                                            <div class="text-[10px] font-bold bg-green-100 text-green-700 px-2 py-0.5 rounded-full inline-block">CONFIRMED</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-4 pt-2 border-t border-[#D7CCC8]/20 text-[7px] text-center text-[#D7CCC8] font-bold">
+                                        VALID FOR ONE TRIP ONLY • 2026 EUROPE TOUR
+                                    </div>
                                 </div>
                             </div>
-                            <div class="mt-4 pt-4 border-t border-dashed border-[#EFEBE9] flex justify-between text-[10px] font-bold text-[#A1887F]">
-                                <span>{{ flight.date }}</span>
-                                <span>艙等: 經濟艙</span>
+
+                        </div>
+                    </div>
+                </div>
+            </transition>
+            
+            <transition name="slide-up" mode="out-in">
+                <div v-if="activeTab === 'flights'" key="flights" class="space-y-4">
+                    <div v-for="(flight, idx) in tripData.flights" :key="idx">
+                        
+                        <div v-if="flight.type.includes('回程') && idx > 0 && tripData.flights[idx-1].type.includes('去程')" class="py-4 flex items-center gap-4">
+                            <div class="flex-1 h-[1px] bg-[#D7CCC8] opacity-30"></div>
+                            <span class="text-[9px] font-black text-[#A1887F] tracking-[0.3em]">RETURN FLIGHTS</span>
+                            <div class="flex-1 h-[1px] bg-[#D7CCC8] opacity-30"></div>
+                        </div>
+
+                        <div class="boarding-pass relative card-shadow rounded-xl overflow-hidden flex min-h-[120px]"
+                            :class="flight.type.includes('去程') ? 'border-doris' : 'border-scott'">
+                            
+                            <div class="pass-watermark-mini"><i class="ph ph-airplane-tilt"></i></div>
+
+                            <div class="flex-1 p-4 pr-3 border-r-2 border-dashed border-[#D7CCC8]/40 relative">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-[9px] font-black uppercase text-[#D7CCC8] tracking-widest">{{ flight.airline }}</span>
+                                    <span class="text-[8px] font-bold px-1.5 py-0.5 rounded tracking-tighter"
+                                        :class="flight.type.includes('去程') ? 'bg-orange-50 text-doris' : 'bg-blue-50 text-scott'">
+                                        {{ flight.type }}
+                                    </span>
+                                </div>
+
+                                <div class="flex justify-between items-center text-center mb-3">
+                                    <div>
+                                        <div class="text-xl font-black text-[#5D4037]">{{ flight.from.split(' ')[0] }}</div>
+                                        <div class="text-[10px] font-bold text-[#A1887F]">{{ flight.depTime }}</div>
+                                    </div>
+                                    <div class="flex flex-col items-center px-2">
+                                        <div class="w-10 h-[1px] bg-[#D7CCC8]/50 relative">
+                                            <i class="ph-fill ph-airplane-tilt absolute -top-1.5 left-1/2 -translate-x-1/2 text-sm"
+                                            :class="flight.type.includes('去程') ? 'text-doris' : 'text-scott'"></i>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="text-xl font-black text-[#5D4037]">{{ flight.to.split(' ')[0] }}</div>
+                                        <div class="text-[10px] font-bold text-[#A1887F]">{{ flight.arrTime }}</div>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-3 gap-2 border-t border-[#D7CCC8]/20 pt-2">
+                                    <div>
+                                        <div class="pass-label">FLIGHT</div>
+                                        <div class="text-[10px] font-black" :class="flight.type.includes('去程') ? 'text-doris' : 'text-scott'">{{ flight.airline.split(' ')[1] }}</div>
+                                    </div>
+                                    <div>
+                                        <div class="pass-label">DATE</div>
+                                        <div class="text-[10px] font-black text-[#5D4037]">{{ flight.date }}</div>
+                                    </div>
+                                    <div>
+                                        <div class="pass-label">GATE</div>
+                                        <div class="text-[10px] font-black" :class="flight.type.includes('去程') ? 'text-doris' : 'text-scott'">TBD</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="w-16 p-2 flex flex-col justify-center text-center relative bg-white/20">
+                                <div class="mb-2">
+                                    <div class="pass-label">BOARD</div>
+                                    <div class="text-xs font-black" :class="flight.type.includes('去程') ? 'text-doris' : 'text-scott'">
+                                        {{ flight.depTime.split(':')[0]-1 }}:{{ flight.depTime.split(':')[1] }}
+                                    </div>
+                                </div>
+                                <div class="border-t border-[#D7CCC8]/30 pt-2">
+                                    <div class="pass-label">SEAT</div>
+                                    <div class="text-[10px] font-black text-[#5D4037]">TBD</div>
+                                </div>
                             </div>
                         </div>
-
-                        <div v-if="idx < tripData.flights.length - 1 && 
-                            ((flight.type.includes('去程') && tripData.flights[idx+1].type.includes('去程')) || 
-                            (flight.type.includes('回程') && tripData.flights[idx+1].type.includes('回程')))" 
-                            class="flight-divider">
-                        </div>
-
                     </div>
                 </div>
             </transition>
@@ -389,6 +907,10 @@
             <button @click="activeTab = 'hotels'" class="flex flex-col items-center gap-1 transition-all" :class="activeTab === 'hotels' ? 'text-[#5D4037] scale-110' : 'text-[#D7CCC8]'">
                 <i class="ph-fill text-2xl ph-house-line"></i><span class="text-[10px] font-bold">住宿</span>
             </button>
+            <button @click="activeTab = 'transport'" class="flex flex-col items-center gap-1 transition-all"
+                :class="activeTab === 'transport' ? 'text-[#5D4037] scale-110' : 'text-[#D7CCC8]'">
+                <i class="ph-fill text-2xl ph-bus"></i><span class="text-[10px] font-bold">交通</span>
+            </button>            
             <button @click="activeTab = 'flights'" class="flex flex-col items-center gap-1 transition-all" :class="activeTab === 'flights' ? 'text-[#5D4037] scale-110' : 'text-[#D7CCC8]'">
                 <i class="ph-fill text-2xl ph-airplane-tilt"></i><span class="text-[10px] font-bold">機票</span>
             </button>
@@ -405,6 +927,8 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getStorage, ref as sRef, uploadBytes, getDownloadURL } 
+        from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyCFDSDvLAkcxHKzH4VAHm0x5yKzUSg2yG0",
@@ -458,6 +982,30 @@
                     showBackups.value[idx] = !showBackups.value[idx];
                 };
 
+                // Function
+                const fbApp = initializeApp(firebaseConfig);
+                const storage = getStorage(fbApp);
+
+                const uploadFile = async (event, item) => {
+                    const files = event.target.files;
+
+                    if (!item.attachments) item.attachments = [];
+
+                    for (let file of files) {
+                        const fileRef = sRef(storage, `tickets/${Date.now()}_${file.name}`);
+                        
+                        await uploadBytes(fileRef, file);
+                        const url = await getDownloadURL(fileRef);
+
+                        item.attachments.push({
+                            type: file.name.toLowerCase().includes("qr") ? "qr" : "image",
+                            url,
+                            name: file.name
+                        });
+                    }
+                };                
+
+
                 // Methods
                 const verifyPassword = () => {
                     if (inputPassword.value === '0529') {
@@ -489,7 +1037,11 @@
                     location.reload();
                 };
 
-                const openMap = (loc) => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(loc)}`, '_blank');
+                const openMap = (loc) => {
+                    if (!loc) return;
+                    const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(loc)}`;
+                    window.open(url, '_blank');
+                };
 
                 const settlement = computed(() => {
                     const balances = {}; 
@@ -510,6 +1062,17 @@
                     newExpense.item = ""; newExpense.amount = "";
                 };
                 const deleteExpense = (idx) => tripData.expenses.splice(idx, 1);
+
+                // 在 setup 或 methods 中
+                const flippedTickets = ref({}); // 用來紀錄哪些 index 的票被翻開了
+
+                const toggleFlip = (idx) => {
+                    if (flippedTickets.value[idx] === undefined) {
+                        flippedTickets.value[idx] = true;
+                    } else {
+                        flippedTickets.value[idx] = !flippedTickets.value[idx];
+                    }
+                };
 
                 const addTodo = () => { if(newTodo.value) tripData.todos.push({id: Date.now(), text: newTodo.value, done: false}); newTodo.value=""; };
                 const removeTodo = (idx) => tripData.todos.splice(idx, 1);
@@ -539,6 +1102,7 @@
                             tripData.hotels = getInitialHotels();
                             tripData.flights = getInitialFlights();
                             tripData.todos = getInitialTodos();
+                            tripData.transport = getInitialTransport();
                             saveToFirebase();
                         }
                         loading.value = false;
@@ -592,17 +1156,19 @@
             }
         });
 
-        // 預設資料
+        // 預設資料    // image | qr | ticket | pdf     
         function getInitialItinerary() { return [
             { date: "5/5 (二)", lat: 22.3, lon: 113.9, remark: "", items: [{ time: "19:30", title: "國泰航空 CX451", location: "桃園 T1", type: "transport", note: "開始旅程" }] },
-            { date: "5/6 (三)", lat: 40.4, lon: -3.7,  remark: "",items: [{ time: "09:15", title: "抵達馬德里", location: "Barajas Airport", type: "transport", note: "辦理入住",transport: {from: "機場",to: "市區",duration: "30分"},booking: {status: "pending",link: ""} }, { time: "15:00", title: "市區遊覽", location: "Royal Palace", type: "spot", note: "馬德里皇宮" }] },
+            { date: "5/6 (三)", lat: 40.4, lon: -3.7, remark: "", items: [{ time: "11:00", title: "馬德里皇宮", location: "Royal Palace of Madrid", type: "spot", backups: [ { title: "馬德里皇宮", note: "馬德里皇宮建於18世紀，是歐洲最大皇宮之一，由波旁王朝興建於舊阿爾卡薩城堡遺址上。宮殿擁有超過3000個房間，象徵西班牙王權與帝國榮耀，目前仍用於國家典禮。" } ] }, 
+                { time: "13:00", title: "阿爾穆德納主教座堂", location: "Almudena Cathedral", type: "spot", backups: [ { title: "阿爾穆德納大教堂", note: "此教堂建設歷時超過百年，直到1993年才由教宗若望保祿二世祝聖，是馬德里最重要的宗教建築之一。" } ] }, 
+                { time: "17:30", title: "德波神殿", location: "Temple of Debod", type: "spot", backups: [ { title: "德波神殿", note: "這座神殿原位於埃及，1968年由埃及贈送給西班牙，以感謝協助保護古蹟，是歐洲少見的古埃及建築。" } ] } ] },
             { date: "5/7 (四)", lat: 40.4, lon: -3.7, remark: "",items: [{ time: "10:00", title: "太陽門廣場", location: "Puerta del Sol", type: "spot", backups: [ { title: "太陽門廣場", note: "馬德里太陽門廣場（Puerta del Sol）歷史悠久，16世紀前因城牆東門有太陽裝飾而得名。1570年起成為廣場，是西班牙公路「零公里」起點。廣場以18世紀新古典風格的郵局大樓（現郵政局）最著名，其鐘樓自1863年起便成為西班牙跨年倒數的傳統地標。 \n太陽門廣場歷史關鍵點： \n❞起源與城門（16世紀前）： 早期這裡是一座城牆的門戶，因面向東方且裝飾有太陽圖案，被稱為太陽門。 \n❞廣場形成（1570年起）： 原有的城門被拆除，空間改建為廣場，逐漸成為馬德里的商業和行政中心。 \n❞郵局大樓（18世紀）： 1766年法國建築師為查理三世設計了這座新古典主義風格的郵局大樓（Casa de Correos），如今是廣場最具代表性的歷史建築。 \n❞零公里地標（1950年起）： 在市政大樓前的人行道上設置了「零公里（Kilómetro Cero）」磁磚地標，代表西班牙所有公路的起點。 \n❞鐘樓與跨年傳統： 1863年由鐘錶匠José Rodríguez Losada製作的鐘樓，開啟了每年12月31日夜間伴隨12響鐘聲吃葡萄的傳統。 \n❞著名地標： 除了郵局大樓，廣場上還有「熊與草莓樹雕像」和卡洛斯三世國王騎馬像。" } ] }] },
             { date: "5/8 (五)", lat: 40.4, lon: -3.7, remark: "",items: [{ time: "10:00", title: "提森博物館", subtype: "museum", location: "Thyssen Museum", type: "spot" }] },
             { date: "5/9 (六)", lat: 37.3, lon: -5.9, remark: "",items: [{ time: "19:00", title: "前往塞維亞", location: "Atocha Station", type: "transport" }] },
             { date: "5/10 (日)", lat: 37.3, lon: -5.9, remark: "",items: [{ time: "10:00", title: "西班牙廣場", location: "Plaza de España", type: "spot" }] },
             { date: "5/11 (一)", lat: 37.3, lon: -5.9, remark: "",items: [{ time: "10:00", title: "塞維亞大教堂", location: "Seville Cathedral", type: "spot" }] },
             { date: "5/12 (二)", lat: 41.3, lon: 2.1, remark: "",items: [{ time: "12:25", title: "飛往巴塞隆納", location: "SVQ Airport", type: "transport" }] },
-            { date: "5/13 (三)", lat: 41.4, lon: 2.1, remark: "",items: [{ time: "09:00", title: "聖家堂", location: "Sagrada Família", type: "spot" , booking: { status: "pending", link: "https://sagradafamilia.org/en/sagrada-familia-ticket" }}] },
+            { date: "5/13 (三)", lat: 41.4, lon: 2.1, remark: "",items: [{ time: "09:00", title: "聖家堂", location: "Sagrada Família", type: "spot" , booking: { status: "pending", link: "https://sagradafamilia.org/en/sagrada-familia-ticket" }, attachments: [{type: "image", url: null,name: "聖家堂門票"   } ]}] },
             { date: "5/14 (四)", lat: 41.3, lon: 2.1, remark: "",items: [{ time: "10:00", title: "畢卡索博物館", location: "Picasso Museum", type: "spot" }] },
             { date: "5/15 (五)", lat: 38.7, lon: -9.1, remark: "",items: [{ time: "12:00", title: "飛往里斯本", location: "BCN Airport", type: "transport" }] },
             { date: "5/16 (六)", lat: 38.7, lon: -9.1, remark: "",items: [{ time: "10:00", title: "里斯本老城", location: "Alfama", type: "spot" }] },
@@ -619,7 +1185,19 @@
         ]; }
 
         function getInitialHotels() { return [
-            { tag: "5/6-5/8", date: "5/6 (三) - 2晚", name: "托雷斯阿迪拉姆飯店", eng: "Tres Torres Atiram Hotel", address: "Barcelona, Spain" },
+            {
+                tag: "5/6-5/8",
+                date: "5/6 (三) - 2晚",
+                name: "托雷斯阿迪拉姆飯店",
+                eng: "Tres Torres Atiram Hotel",
+                address: "Barcelona, Spain",
+
+                room: "1208",
+                status: "confirmed", // confirmed | pending | checked-in
+                checkInTime: "15:00",
+                checkOutTime: "11:00",
+                map: "Barcelona, Spain"
+            },
             { tag: "5/9-5/11", date: "5/9 (六) - 3晚", name: "LETOH LETOH 飯店", eng: "LETOH LETOH Hotel", address: "Sevilla, Spain" },
             { tag: "5/12-5/14", date: "5/12 (二) - 3晚", name: "阿凱隆飯店", eng: "Arcelon Hotel", address: "Barcelona, Spain" },
             { tag: "5/15-5/17", date: "5/15 (五) - 3晚", name: "Trip2Portugal 旅館", eng: "GuestHouse by Trip2Portugal", address: "Lisbon, Portugal" },
@@ -628,6 +1206,17 @@
             { tag: "5/23-5/24", date: "5/23 (六) - 2晚", name: "波普藝術公寓", eng: "PopArtment", address: "Firenze, Italy" },
             { tag: "5/25", date: "5/25 (一) - 1晚", name: "Limehome Milan", eng: "Limehome Milan Park Towers", address: "Milano, Italy" }
         ]; }
+
+        function getInitialTransport() { return [
+            { type: "火車", date: "5/9", title: "Madrid → Sevilla", from: "Atocha", to: "Sevilla Santa Justa", departTime: "19:00", arriveTime: "21:30", duration: "2h30m", booking: {status: "booked",link: ""},attachments: []},
+            { type: "飛機", date: "5/12", title: "Sevilla → Barcelona", from: "SVQ", to: "BCN", departTime: "12:25", arriveTime: "14:05", duration: "1h40m", booking: { status: "booked", link: "" }, attachments: [] },
+            { type: "飛機", date: "5/15", title: "Barcelona → Lisbon", from: "BCN", to: "LIS", departTime: "12:00", arriveTime: "13:00", duration: "2h", booking: { status: "booked", link: "" }, attachments: [] },
+            { type: "巴士", date: "5/18", title: "Lisbon → Porto", from: "Lisboa", to: "Porto", departTime: "", arriveTime: "", duration: "", booking: { status: "pending", link: "" }, attachments: [] },
+            { type: "飛機", date: "5/19", title: "Porto → Rome", from: "OPO", to: "FCO", departTime: "", arriveTime: "", duration: "", booking: { status: "booked", link: "" }, attachments: [] },
+            { type: "火車", date: "5/23", title: "Rome → Florence", from: "Roma Termini", to: "Firenze SMN", departTime: "15:35", arriveTime: "17:11", duration: "1h36m", booking: { status: "booked", link: "" }, attachments: [] },
+            { type: "火車", date: "5/25", title: "Florence → Milan", from: "Firenze SMN", to: "Milano Centrale", departTime: "08:21", arriveTime: "12:15", duration: "3h54m", booking: { status: "booked", link: "" }, attachments: [] },
+        ]; }
+            
 
         function getInitialFlights() { return [
             { type: "去程 - 第1段", date: "5/5", airline: "國泰 CX451", from: "TPE 桃園", to: "HKG 香港", depTime: "19:30", arrTime: "21:30", duration: "2h" },
